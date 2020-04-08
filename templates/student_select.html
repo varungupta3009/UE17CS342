@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="signup_styling.css">
+    <link rel="stylesheet" href="navigationbar_styling.css">
+</head>
+<body>
+
+    
+    <div class="topnav">
+  </div>
+
+    <br/>
+        <div class="topnav">
+            
+        </div>
+<h3>STUDENTS SELECT QUERY</h3>
+<p>Please Select the Attributes From the Table</p>
+
+<div class="container">
+  <form method="post" action="/student_select">
+    <label for="name">Name</label>
+      <pre><input type="textbox" name="name">Enter the Name(Optional) or Enter 'No' to avoid select Name. 
+      </pre>
+     <label for="gender">Gender</label>
+      <pre><input type="radio" name="gender" value="m">Only Male  <input type="radio" name="gender" value="f">Only Female   <input type="radio" name="gender" value="any">Either    <input type="radio" name="gender" value="n" checked="true">No
+      <br/>
+      </pre>
+   <label for="srn">SRN</label>
+      <pre><input type="textbox" name="srn""> Enter SRN (optional) or Enter 'No' to avoid select SRN 
+      <br/>
+      </pre>
+     <label for="emailId">Email ID</label>
+      <pre><input type="textbox" name="emailid"> Enter Email ID (optional) or Enter 'No' to avoid select Email ID 
+      <br/>
+      </pre>
+      
+    <label for="program">Program</label>
+      <pre><input type="textbox" name="program"> Enter Branch CE or ME or Biotech or CSE or ECE or EEE(optional) or Enter 'No' to avoid select Program 
+      <br/>
+      </pre>
+      <label for="enrolmentid">Enrolment ID</label>
+      <pre><input type="textbox" name="enrolment_id"> Enter Enrolment ID (optional) or Enter 'No' to avoid select Enrolment ID 
+      <br/>
+      </pre>
+  <label for="phone_number">Phone Number</label>
+      <pre><input type="textbox" name="phone"> Enter phone number (optional) or Enter 'No' to avoid select phone number
+      <br/>
+      </pre>
+    <label for="year">Year</label>
+      <pre><input type="textbox" name="year"> Enter the Year (optional) or Enter 'No' to avoid select year
+      <br/>
+      </pre>
+      
+    <label for="password">Password</label>
+      <pre><input type="radio" name="password">Yes        <input type="radio" name="password" value="n" checked="true">No
+      <br/>
+      </pre>
+    <input type="submit" value="Submit">
+
+
+  </form>
+</div>
+
+</body>
+</html>

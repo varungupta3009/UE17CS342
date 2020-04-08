@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Blog</title>
+</head>
+<body>
+	<form method="get">
+		Search by hash tag:<input type="text" name="hashtag">
+		<input type="submit" value="Search">
+	</form>
+	{% for i in data %}
+	<a href="/post/{{i[0]}}">{{i[1]}}<br>
+		{{i[3]}}<br>
+		{{i[2]}}<br></a>
+		<br><br>
+	{% endfor %}
+</body>
+</html>

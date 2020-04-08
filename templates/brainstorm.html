@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Brainstorm</title>
+</head>
+<body>
+	<h1>BrainStorm</h1>
+	<form action="/brainstorm" method="post">
+	<textarea name="post" rows="10" cols="30"></textarea>
+		<br><br>
+		<input type="submit" value="Post">
+	</form>
+	<div>
+		{% for i in data%}
+			{{i[2]}}<br>
+			{{i[0]}}<br>
+			{{i[1]}}<br>
+			<br><br>
+		{% endfor %}
+	</div>
+</body>
+</html>

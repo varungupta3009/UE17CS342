@@ -1,0 +1,44 @@
+create table lecture
+(
+  email varchar primary key,
+  name varchar,
+  branch varchar,
+  password varchar,
+  phone varchar,
+  gender varchar
+);
+create table student
+(
+  name varchar,
+  gender varchar,
+  srn varchar primary key,
+  emailId varchar,
+  program varchar,
+  enrolment_id integer,
+  phone varchar,
+  year integer,
+  password varchar
+);
+create table brainstorm
+(
+  email varchar,
+  datetime DATETIME,
+  post varchar,
+  primary key(email,post)
+);
+create table blog
+(
+	post_id integer primary key autoincrement,
+	heading varchar unique,
+	posted_by varchar,
+	datetime DATETIME,
+	post varchar
+);
+
+create table hashtag
+(
+	post_id int,
+	hashtag varchar,
+	primary key(post_id,hashtag),
+	foreign key(post_id) references blog(post_id)
+);
