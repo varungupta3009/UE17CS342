@@ -42,3 +42,17 @@ create table hashtag
 	primary key(post_id,hashtag),
 	foreign key(post_id) references blog(post_id)
 );
+create table poll
+(
+  poll_id integer primary key autoincrement,
+  question varchar,
+);
+
+create table poll_data
+(
+  poll_id integer,
+  data varchar,
+  count integer default 0,
+  primary key(poll_id,data),
+  foreign key(poll_id) references poll(poll_id)
+);

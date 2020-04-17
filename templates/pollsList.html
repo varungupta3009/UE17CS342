@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
+	<head>
+		<title>Polls</title>
+		<script type="text/javascript">
+			var count = {{ count }};
+			var le = 1;
+			var xhr = new XMLHttpRequest();
+			function call() {
+				if (le <= count) {
+					xhr.open('get', '/poll/' + le);
+					xhr.onload = adding;
+					xhr.send();
+				}
+			}
+
+			function adding() {
+				if (this.readyState == 4 && this.status == 200) {
+					console.log(this.response)
+					a = document.getElementById('polls');
+					a.innerHTML += this.response;
+					le++;
+					call();
+				}
+			}
+		</script>
+	</head>
+
+	<body onload="call()" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+		<h1 class="mt-4 mb-8 text-4xl text-center font-bold leading-tight text-indigo-800">
+			Polls
+		</h1>
+		<div id="polls"></div>
+	</body>
+
+</html>

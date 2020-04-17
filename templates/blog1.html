@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
   <head>
     <title>PES University- Gateway to all your dreams</title>
@@ -30,7 +30,7 @@
       <div class="container">
         <div class="row no-gutters d-flex align-items-center align-items-stretch">
           <div class="col-md-4 d-flex align-items-center py-4">
-            <a class="navbar-brand" href="index">PES University</a>
+            <a class="navbar-brand" href="/"> PES University </a>
           </div>
           <div class="col-lg-8 d-block">
             <div class="row d-flex">
@@ -47,7 +47,7 @@
                 </div>
                 <div class="text">
                   <span>Call</span>
-                  <span>>Call Us: +918277069133</span>
+                  <span>Call Us: +918277069133</span>
                 </div>
               </div>
               <div class="col-md topper d-flex align-items-center justify-content-end">
@@ -86,94 +86,28 @@
         </div>
       </div>
     </nav>
-    <!-- END nav -->
-
-
-
-    <section class="ftco-section bg-light">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-6 col-lg-4 ftco-animate">
-            <div class="blog-entry">
-              <a href="blog-single" class="block-20 d-flex align-items-end"
-                style="background-image: url('{{url_for('static',filename='images/mem.jfif')}}');">
-                <div class="meta-date text-center p-2">
-                  <span class="day">26</span>
-                  <span class="mos">June</span>
-                  <span class="yr">2020</span>
-                </div>
-              </a>
-              <div class="text bg-white p-4">
-                <h3 class="heading"><a href="#">Skills To Develop Your Memory</a></h3>
-                <p> This 1 hour workshop will focus on lot of techniques to enhance memory , conducted by Mr. Pradeep
-                  Acharya</p>
-                <div class="d-flex align-items-center mt-4">
-                  <p class="mb-0"><a href="#" class="btn btn-primary">Read More <span
-                        class="ion-ios-arrow-round-forward"></span></a></p>
-                  <p class="ml-auto mb-0">
-
-                    <a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 ftco-animate">
-            <div class="blog-entry">
-              <a href="blog-single" class="block-20 d-flex align-items-end"
-                style="background-image: url('{{url_for('static',filename='images/music.jfif')}}');">
-                <div class="meta-date text-center p-2">
-                  <span class="day">4</span>
-                  <span class="mos">July</span>
-                  <span class="yr">2020</span>
-                </div>
-              </a>
-              <div class="text bg-white p-4">
-                <h3 class="heading"><a href="#">Music Club Auditions and Band Performances</a></h3>
-                <p>If you think you can set the stage on fire , come and audition ! Meet fellow aspiring musicians and
-                  enjoy live performances of rock & pop bands </p>
-                <div class="d-flex align-items-center mt-4">
-                  <p class="mb-0"><a href="#" class="btn btn-primary">Read More <span
-                        class="ion-ios-arrow-round-forward"></span></a></p>
-                  <p class="ml-auto mb-0">
-
-                    <a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 ftco-animate">
-            <div class="blog-entry">
-              <a href="blog-single" class="block-20 d-flex align-items-end"
-                style="background-image: url('{{url_for('static',filename='images/indep.jpeg')}}');">
-                <div class="meta-date text-center p-2">
-                  <span class="day">15</span>
-                  <span class="mos">August</span>
-                  <span class="yr">2020</span>
-                </div>
-              </a>
-              <div class="text bg-white p-4">
-                <h3 class="heading"><a href="#">Independence Day Celebration</a></h3>
-                <p>Patriotic song performances followed by Sungama Sangeetha music group , come and witness them live at
-                  OAT !</p>
-                <div class="d-flex align-items-center mt-4">
-                  <p class="mb-0"><a href="#" class="btn btn-primary">Read More <span
-                        class="ion-ios-arrow-round-forward"></span></a></p>
-                  <p class="ml-auto mb-0">
-
-                    <a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-
-        </div>
-    </section>
-
+    <div class="container">
+      <form method="get">
+        <br>
+        Search:&nbsp;&nbsp;<input type="text" name="hashtag">
+        <input type="submit" value="Search" class="btn btn-primary">
+      </form>
+      <br>
+      <table>
+        {% for i in data %}
+        <tr>
+          <td>{% if i[5] %}
+            <img src="{{url_for('static',filename='media/'+i[5])}}" height="200" width="200"></img>
+            {% endif %}</td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td><a href="/post/{{i[0]}}">{{i[1]}}<br>
+              {{i[3]}}<br>
+              {{i[2]}}</a></td>
+          <br>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
 
     <footer class="ftco-footer ftco-bg-dark ftco-section">
       <div class="container">

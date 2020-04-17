@@ -4,9 +4,12 @@ from datetime import datetime
 import sqlite3
 import random
 import re
+import os
 
+UPLOAD_FOLDER='static/media'
 app=Flask(__name__)
 app.secret_key = "abc"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 conn = sqlite3.connect('KM.db')
 conn.execute("")
 @app.route('/signup',methods=["GET","POST"])
@@ -18,11 +21,11 @@ def signup():
             data=request.form
             conn = sqlite3.connect('KM.db')
             c=conn.cursor()
-            c.execute("insert into lecture values('"+data['emailId']+"','"+data['name']+"','"+data['branch']+"','"+data['password']+"','"+data['phone']+"','"+data['gender']+"');")
+            c.execute("insert into lecture(email,fname,lname,password,phone,gender) values('"+data['emailId']+"','"+data['name']+"','"+data['branch']+"','"+data['password']+"','"+data['phone']+"','"+data['gender']+"');")
             conn.commit()
             return redirect('/signin')
         except Exception as e:
-        	print(e)
+        	print(e,data)
         	return render_template('signup.html',data="Username Already Exists")
     else:
     	return redirect('/')
@@ -36,9 +39,15 @@ def studentSet():
 		conn = sqlite3.connect('KM.db')
 		c=conn.cursor()
 		c.execute("select * from student where srn='"+data['srn']+"' and emailID='"+data['email']+"';")
-		if(len(list(c))==0):
+		a=list(map(lambda x:list(x),list(c)))
+		print(list(c),len(list(c)))
+		print(a,len(a))
+		if(a==0):
 			return render_template("student.html",msg="Student Does not exist")
 		else:
+			print(list(c),len(list(c)))
+			if(a[0][8]!=""):
+				return render_template("student.html",msg="Password Alredy Set Can't alter")
 			c.execute("update student set password='"+data['password']+"' where emailId='"+data['email']+"' and srn='"+data['srn']+"';")
 			conn.commit()
 			return redirect('/signin')
@@ -60,18 +69,29 @@ def signin():
         print(c)
         if(len(c)>0):
         	e=c
+        	session['lec']=0
+        	session['admin']=0
         elif(len(d)>0):
         	e=d
+        	session['lec']=1
+        	if d[0][6]==1:
+        		session['admin']=1
+        	else:
+        		session['admin']=0
         else:
         	return render_template('signin.html',data="Username and password does not match")    
         session['emailId']=data['emailId']
         msg="SignIn Successfull"
-        return "SignedIn"
+        return redirect('/')
+    else:
+    	return redirect('/')
 
 @app.route('/signout')
 def signout():
 	if 'emailId' in session:
 		del session['emailId']
+		del session['lec']
+		del session['admin']
 		return redirect('/')
 	else:
 		abort(400)
@@ -79,21 +99,48 @@ def signout():
 @app.route('/brainstorm', methods=['GET','POST','DELETE'])
 def brainstorm():
 	conn = sqlite3.connect('KM.db')
-	if request.method=="GET":
-		if 'emailId' in session:
+	if 'emailId' in session:
+		if request.method=="GET":
+			if 'emailId' in session:
+				c=conn.cursor()
+				c.execute("select * from brainstorm;")
+				c=list(c)
+				return render_template('brainstorm.html',data=c)
+			return redirect('/signin')
+		elif request.method=="POST":
+			data=request.form
 			c=conn.cursor()
-			c.execute("select * from brainstorm;")
-			c=list(c)
-			return render_template('brainstorm.html',data=c)
+			date=str(datetime.now())
+			c.execute("insert into brainstorm values('"+session['emailId']+"','"+date+"','"+data['post']+"');")
+			conn.commit()
+			return redirect('/brainstorm')
+	else:
 		return redirect('/signin')
-	elif request.method=="POST":
-		data=request.form
-		c=conn.cursor()
-		date=str(datetime.now())
-		c.execute("insert into brainstorm values('"+session['emailId']+"','"+date+"','"+data['post']+"');")
-		conn.commit()
-		return redirect('/brainstorm')
 
+@app.route('/brainRefresh')
+def refresh():
+	l=[]
+	conn = sqlite3.connect('KM.db')
+	e=conn.cursor()
+	e.execute("select * from brainstorm;")
+	e=list(e)
+	for i in e:
+		c=conn.cursor()
+		d=conn.cursor()
+		c.execute("select * from student where emailId='"+i[0]+"';")
+		d.execute("select * from lecture where email='"+i[0]+"';")
+		c=list(c)
+		d=list(d)
+		if(len(c)>0):
+			l.append(0)
+		elif(len(d)>0):
+			if(d[0][6]==0):
+				l.append(1)
+			else:
+				l.append(2)
+
+	#print(render_template('chatbox.html',data=c))
+	return render_template('chatbox.html',data=zip(e,l))
 @app.route('/blog')
 def blog():
 	conn = sqlite3.connect('KM.db')
@@ -108,12 +155,12 @@ def blog():
 			l.append(list(c)[0])
 			print(c)
 		print(l)
-		return render_template('blog.html',data=l)
+		return render_template('blog1.html',data=l)
 	else:
 		c=conn.cursor()
 		c.execute("select * from blog;")
 		c=list(c)
-		return render_template('blog.html',data=c)
+		return render_template('blog1.html',data=c)
 
 @app.route('/newpost', methods=['GET','POST'])
 def newpost():
@@ -124,25 +171,36 @@ def newpost():
 		else:
 			return redirect('/signin')
 	elif request.method=="POST":
-		data=request.form
-		date=str(datetime.now())
-		c=conn.cursor()
-		c.execute("insert into blog(posted_by,heading,datetime,post) values('"+session['emailId']+"','"+data['heading']+"','"+date+"','"+data['post']+"');")
-		conn.commit()
-		c.execute("select post_id from blog where posted_by='"+session['emailId']+"' and heading='"+data['heading']+"';")
-		post_id=list(c)[0][0]
-		hashtags1=re.findall(r"#(\w+)", data['post'])
-		hashtags2=re.findall(r"#(\w+)", data['hashtags'])
-		hashtag=hashtags1+hashtags2
-		print(post_id,hashtag)
-		for i in hashtag:
-			try:
-				print(type(post_id),type(i))
-				c.execute("insert into hashtag(post_id,hashtag) values("+str(post_id)+",'"+i+"');")
-			except Exception as e:
-				print("hastag reused",e)
-		conn.commit()
-		return redirect('/blog')
+		try:
+			data=request.form
+			file = request.files['img']
+			date=str(datetime.now())
+			c=conn.cursor()
+			filename = file.filename
+			c.execute("insert into blog(posted_by,heading,datetime,post,img) values('"+session['emailId']+"','"+data['heading']+"','"+date+"','"+data['post']+"','"+filename+"');")
+			conn.commit()
+			c.execute("select post_id from blog where posted_by='"+session['emailId']+"' and heading='"+data['heading']+"';")
+			post_id=list(c)[0][0]
+			hashtags1=re.findall(r"#(\w+)", data['post'])
+			hashtags2=re.findall(r"#(\w+)", data['hashtags'])
+			hashtag=hashtags1+hashtags2
+			print(post_id,hashtag)
+			print(data)
+			
+			if file.filename!='':
+				filename = file.filename
+				file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			for i in hashtag:
+				try:
+					print(type(post_id),type(i))
+					c.execute("insert into hashtag(post_id,hashtag) values("+str(post_id)+",'"+i+"');")
+				except Exception as e:
+					print("hastag reused",e)
+			conn.commit()
+			return redirect('/blog')
+		except Exception as e:
+			print(e)
+			return redirect('/newpost')
 
 @app.route('/post/<post_id>')
 def post(post_id):
@@ -161,6 +219,10 @@ def post(post_id):
 
 @app.route('/student_select',methods=["POST","GET"])
 def student_select():
+	if 'emailId' not in session:
+		return redirect('/signin')
+	elif session['lec']==0:
+		abort(403)
 	if(request.method=="GET"):
 		return render_template("student_select.html")
 	else:
@@ -289,12 +351,12 @@ def student_select():
 			else:
 				w=w+" AND " + " year = " + data["year"]
 		
-		if(data["password"]=="y"):
-			if(c_count==0):
-				c=c+"password"
-				c_count=c_count+1
-			else:
-				c=c+" , "+"password"
+		"""if(data["password"]=="y"):
+									if(c_count==0):
+										c=c+"password"
+										c_count=c_count+1
+									else:
+										c=c+" , "+"password"""
 
 		print(c,'\n',w)
 		if(c=="" and w==""):
@@ -313,7 +375,89 @@ def student_select():
 		print("Aur ye hai uska output")
 		ct=list(ct)	# output of the query in the list
 		print(ct)
-		return "Check terminal Output"
-		
+		c=c.split(',')
+		c=list(map(lambda x:x.upper(),c))
+		return render_template('result.html',data=ct,heading=c)
+
+@app.route('/about')
+def about():
+	return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+	return render_template('contact.html')
+
+@app.route('/courses')
+def courses():
+	return render_template('courses.html')
+
+@app.route('/')
+def index():
+	return render_template('index.html')
+
+@app.route('/teacher')
+def teacher():
+	return render_template('teacher.html')
+
+@app.route('/pollsList')
+def root():
+	conn = sqlite3.connect('KM.db')
+	c=conn.cursor()
+	c.execute("select count(*) from poll;")
+	c=list(c)
+	return render_template('pollsList.html' , count=c[0][0])
+
+@app.route('/poll/<poll_id>')
+def poll(poll_id):
+	poll_data={}
+	vote = request.args.get('field')
+	conn = sqlite3.connect('KM.db')
+	c=conn.cursor()
+	c.execute('select question from poll where poll_id='+poll_id+';')
+	poll_data['question']=list(c)[0][0]
+	c.execute('select data from poll_data where poll_id='+poll_id+';')
+	poll_data['fields']=list(map(lambda x:x[0],list(c)))
+	#print(render_template('poll.html' , data=poll_data))
+	if vote:
+		print("here")
+		c.execute("update poll_data SET count=count+1 where poll_id="+poll_id+" and data='"+vote+"';")
+		conn.commit()
+		return render_template('thankyou.html', data=poll_data)
+	else:
+		return render_template('poll.html' , data=poll_data,poll_id=poll_id)
+	
+@app.route('/resultList')
+def res():
+	conn = sqlite3.connect('KM.db')
+	c=conn.cursor()
+	c.execute("select count(*) from poll;")
+	c=list(c)
+	return render_template('resultList.html' , count=c[0][0])
+
+@app.route('/results/<poll_id>')
+def show_results(poll_id):
+	votes = {}
+	poll_data={}
+	conn = sqlite3.connect('KM.db')
+	c=conn.cursor()
+	c.execute('select question from poll where poll_id='+poll_id+';')
+	poll_data['question']=list(c)[0][0]
+	c.execute('select data from poll_data where poll_id='+poll_id+';')
+	poll_data['fields']=list(map(lambda x:x[0],list(c)))
+	c.execute('select data,count from poll_data where poll_id='+poll_id+';')
+	#print(list(map(lambda x:x[0],list(c))))
+	datass=[]
+	valuees=[]
+	for i in list(c):
+		datass.append(i[0])
+		valuees.append(i[1])
+	#datass=list(map(lambda x:x[0],list(c)))
+	#valuees=list(map(lambda x:x[1],list(c)))
+	print(datass,valuees)
+	for i,j in zip(datass,valuees):
+		votes[i]=j
+	print(votes)
+	return render_template('results.html', data=poll_data, votes=votes,poll_id=poll_id)
+
 if __name__=="__main__":
 	app.run(port=5678,debug=True)
