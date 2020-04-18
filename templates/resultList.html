@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Polls</title>
-	<script type="text/javascript">
-		var count={{count}};
-		var le=1;
-		var xhr=new XMLHttpRequest();
-		function call() {
-			if(le<=count){
-				xhr.open('get','/results/'+le.toString());
-				xhr.onload=adding;
-				xhr.send();
-			}
-		}
 
-		function adding(){
-			if(this.readyState == 4 && this.status == 200){
-				console.log(this.response)
-				a=document.getElementById('polls');
-				a.innerHTML+=this.response;
-				le++;
-				call();
+	<head>
+		<title>Results</title>
+		<script type="text/javascript">
+			var count = {{ count }};
+			var le = 1;
+			var xhr = new XMLHttpRequest();
+			function call() {
+				if (le <= count) {
+					xhr.open('get', '/results/' + le.toString());
+					xhr.onload = adding;
+					xhr.send();
+				}
 			}
-		}
 
-	</script>
-		
-</head>
-<body onload="call()">
-	<div id="polls"></div>
-</body>
+			function adding() {
+				if (this.readyState == 4 && this.status == 200) {
+					console.log(this.response)
+					a = document.getElementById('polls');
+					a.innerHTML += this.response;
+					le++;
+					call();
+				}
+			}
+
+		</script>
+
+	</head>
+
+	<body onload="call()">
+		<div id="polls"></div>
+	</body>
+
 </html>
